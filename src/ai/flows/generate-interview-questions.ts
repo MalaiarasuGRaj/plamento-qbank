@@ -77,6 +77,26 @@ const prompt = ai.definePrompt({
 
   Return ONLY a JSON object with three keys: "easy", "medium", and "hard", where each key holds an array of 5 question strings.
   `,
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_NONE',
+      },
+    ],
+  }
 });
 
 const generateInterviewQuestionsFlow = ai.defineFlow(
