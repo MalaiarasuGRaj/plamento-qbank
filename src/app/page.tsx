@@ -1,26 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Loader2, Sparkles, Clipboard, Printer } from 'lucide-react';
+import { Loader2, Sparkles, Clipboard, Printer, Upload, FileText } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from "@/hooks/use-toast";
 import { getInterviewQuestions } from '@/app/actions';
 import { Icons } from '@/components/icons';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+
 const formSchema = z.object({
-  resumeText: z.string({ required_error: 'Resume text is required.' }).min(100, {
-    message: 'Resume text must be at least 100 characters.',
-  }),
+  resumeFile: z
+    .any()
+    .refine((files) => files?.length === 1, 'Resume file is required.')
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
+      '.pdf and .doc/.docx files are accepted.'
+    ),
   skills: z.string({ required_error: 'Skills are required.' }).min(1, {
     message: 'Please enter at least one skill.',
   }),
@@ -31,15 +38,25 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+
 export default function Home() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      resumeText: '',
       skills: 'Python, SQL, Excel, Machine Learning',
       questionFormat: 'Theoretical',
     },
@@ -49,18 +66,32 @@ export default function Home() {
     setIsLoading(true);
     setGeneratedQuestions([]);
     
-    const result = await getInterviewQuestions(values);
-    
-    setIsLoading(false);
+    try {
+        const resumeDataUri = await fileToDataUri(values.resumeFile[0]);
+        const result = await getInterviewQuestions({
+            resumeDataUri: resumeDataUri,
+            skills: values.skills,
+            questionFormat: values.questionFormat,
+        });
 
-    if (result.success && result.questions) {
-      setGeneratedQuestions(result.questions);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.error || 'An unexpected error occurred.',
-      });
+        if (result.success && result.questions) {
+            setGeneratedQuestions(result.questions);
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: result.error || 'An unexpected error occurred.',
+            });
+        }
+    } catch(error) {
+        console.error("Error processing form:", error);
+        toast({
+            variant: "destructive",
+            title: "File processing error.",
+            description: "Could not read the uploaded file. Please try again.",
+        });
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -82,6 +113,8 @@ export default function Home() {
     }
   };
 
+  const selectedFile = form.watch('resumeFile')?.[0];
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -97,7 +130,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
-                Paste your resume, select skills, and choose a format to generate tailored interview questions.
+                Upload a resume, select skills, and choose a format to generate tailored interview questions.
               </CardDescription>
             </CardHeader>
             <Form {...form}>
@@ -105,17 +138,39 @@ export default function Home() {
                 <CardContent className="space-y-6">
                   <FormField
                     control={form.control}
-                    name="resumeText"
+                    name="resumeFile"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Resume Text</FormLabel>
+                        <FormLabel>Resume</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Paste the text from your resume here..."
-                            className="min-h-[200px] resize-y"
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input 
+                                type="file" 
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={(e) => field.onChange(e.target.files)}
+                                accept=".pdf,.doc,.docx"
+                            />
+                            <Button 
+                                type="button" 
+                                variant="outline"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-full justify-start text-left font-normal"
+                            >
+                                <Upload className="mr-2"/>
+                                {selectedFile ? selectedFile.name : 'Upload your resume'}
+                            </Button>
+                             {selectedFile && (
+                                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                                    <FileText className="h-4 w-4"/>
+                                    <span>{selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                                </div>
+                             )}
+                          </div>
                         </FormControl>
+                        <FormDescription>
+                          PDF or Word document (max 5MB).
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

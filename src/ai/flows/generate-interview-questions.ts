@@ -12,7 +12,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateInterviewQuestionsInputSchema = z.object({
-  resumeText: z.string().describe('The text content of the uploaded resume.'),
+  resumeDataUri: z
+    .string()
+    .describe(
+      "The candidate's resume, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
   skills: z
     .string()
     .describe(
@@ -45,9 +49,9 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateInterviewQuestionsOutputSchema},
   prompt: `You are an expert interview question generator.
 
-  Based on the provided resume text and the selected skills, generate a list of interview questions in the specified format.
-
-  Resume Text: {{{resumeText}}}
+  Based on the provided resume and the selected skills, generate a list of interview questions in the specified format.
+  
+  Resume: {{media url=resumeDataUri}}
   Skills: {{{skills}}}
   Question Format: {{{questionFormat}}}
 
