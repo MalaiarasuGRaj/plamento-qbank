@@ -1,0 +1,70 @@
+'use server';
+
+/**
+ * @fileOverview Generates interview questions based on a resume and selected skills.
+ *
+ * - generateInterviewQuestions - A function that generates interview questions.
+ * - GenerateInterviewQuestionsInput - The input type for the generateInterviewQuestions function.
+ * - GenerateInterviewQuestionsOutput - The return type for the generateInterviewQuestions function.
+ */
+
+import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
+
+const GenerateInterviewQuestionsInputSchema = z.object({
+  resumeText: z.string().describe('The text content of the uploaded resume.'),
+  skills: z
+    .string()
+    .describe(
+      'A comma-separated list of skills to focus the interview questions on.'
+    ),
+  questionFormat: z
+    .enum(['MCQs', 'Fill in the Blanks', 'Theoretical'])
+    .describe('The desired format for the generated interview questions.'),
+});
+export type GenerateInterviewQuestionsInput = z.infer<
+  typeof GenerateInterviewQuestionsInputSchema
+>;
+
+const GenerateInterviewQuestionsOutputSchema = z.object({
+  questions: z.array(z.string()).describe('The generated interview questions.'),
+});
+export type GenerateInterviewQuestionsOutput = z.infer<
+  typeof GenerateInterviewQuestionsOutputSchema
+>;
+
+export async function generateInterviewQuestions(
+  input: GenerateInterviewQuestionsInput
+): Promise<GenerateInterviewQuestionsOutput> {
+  return generateInterviewQuestionsFlow(input);
+}
+
+const prompt = ai.definePrompt({
+  name: 'generateInterviewQuestionsPrompt',
+  input: {schema: GenerateInterviewQuestionsInputSchema},
+  output: {schema: GenerateInterviewQuestionsOutputSchema},
+  prompt: `You are an expert interview question generator.
+
+  Based on the provided resume text and the selected skills, generate a list of interview questions in the specified format.
+
+  Resume Text: {{{resumeText}}}
+  Skills: {{{skills}}}
+  Question Format: {{{questionFormat}}}
+
+  The questions should be relevant to the resume and skills, and designed to assess the candidate's knowledge and experience.
+
+  Return ONLY a JSON array of strings.
+  `,
+});
+
+const generateInterviewQuestionsFlow = ai.defineFlow(
+  {
+    name: 'generateInterviewQuestionsFlow',
+    inputSchema: GenerateInterviewQuestionsInputSchema,
+    outputSchema: GenerateInterviewQuestionsOutputSchema,
+  },
+  async input => {
+    const {output} = await prompt(input);
+    return output!;
+  }
+);
