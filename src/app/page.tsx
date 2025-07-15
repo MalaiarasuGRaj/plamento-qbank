@@ -57,7 +57,7 @@ export default function Home() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      skills: 'Python, SQL, Excel, Machine Learning',
+      skills: '',
       questionFormat: 'Theoretical',
     },
   });
