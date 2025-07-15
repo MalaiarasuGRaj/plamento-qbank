@@ -125,8 +125,8 @@ export default function Home() {
         </div>
       </header>
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <Card className="w-full">
+        <div className="grid grid-cols-1 gap-8 items-start">
+          <Card className="w-full max-w-4xl mx-auto">
             <CardHeader>
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
@@ -242,7 +242,7 @@ export default function Home() {
             </Form>
           </Card>
 
-          <div className="w-full space-y-4">
+          <div className="w-full space-y-4 max-w-4xl mx-auto">
             {isLoading && (
               <Card className="flex items-center justify-center p-16">
                 <div className="flex flex-col items-center gap-4">
