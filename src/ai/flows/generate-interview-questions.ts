@@ -31,7 +31,15 @@ export type GenerateInterviewQuestionsInput = z.infer<
 >;
 
 const GenerateInterviewQuestionsOutputSchema = z.object({
-  questions: z.array(z.string()).describe('The generated interview questions.'),
+  easy: z
+    .array(z.string())
+    .describe('An array of 10 easy difficulty questions.'),
+  medium: z
+    .array(z.string())
+    .describe('An array of 10 medium difficulty questions.'),
+  hard: z
+    .array(z.string())
+    .describe('An array of 10 hard difficulty questions.'),
 });
 export type GenerateInterviewQuestionsOutput = z.infer<
   typeof GenerateInterviewQuestionsOutputSchema
@@ -49,15 +57,17 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateInterviewQuestionsOutputSchema},
   prompt: `You are an expert interview question generator.
 
-  Based on the provided resume and the selected skills, generate a list of interview questions in the specified format.
+  Based on the provided resume and the selected skills, generate a list of 30 interview questions in the specified format, categorized by difficulty.
   
+  You must generate exactly 10 easy, 10 medium, and 10 hard questions.
+
   Resume: {{media url=resumeDataUri}}
   Skills: {{{skills}}}
   Question Format: {{{questionFormat}}}
 
   The questions should be relevant to the resume and skills, and designed to assess the candidate's knowledge and experience.
 
-  Return ONLY a JSON array of strings.
+  Return ONLY a JSON object with three keys: "easy", "medium", and "hard", where each key holds an array of 10 question strings.
   `,
 });
 

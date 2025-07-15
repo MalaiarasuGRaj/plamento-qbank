@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getInterviewQuestions } from '@/app/actions';
 import { Icons } from '@/components/icons';
 import Footer from '@/components/Footer';
+import type { GenerateInterviewQuestionsOutput } from '@/ai/flows/generate-interview-questions';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
@@ -48,11 +49,12 @@ const fileToDataUri = (file: File): Promise<string> => {
     });
 };
 
+const emptyQuestions: GenerateInterviewQuestionsOutput = { easy: [], medium: [], hard: [] };
 
 export default function Home() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedQuestions, setGeneratedQuestions] = useState<string[]>([]);
+  const [generatedQuestions, setGeneratedQuestions] = useState<GenerateInterviewQuestionsOutput>(emptyQuestions);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
@@ -65,7 +67,7 @@ export default function Home() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    setGeneratedQuestions([]);
+    setGeneratedQuestions(emptyQuestions);
     
     try {
         const resumeDataUri = await fileToDataUri(values.resumeFile[0]);
@@ -97,7 +99,10 @@ export default function Home() {
   };
 
   const handleExport = (type: 'copy' | 'print') => {
-    const content = generatedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+    const { easy, medium, hard } = generatedQuestions;
+    const allQuestions = [...easy, ...medium, ...hard];
+    const content = allQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+    
     if (type === 'copy') {
       navigator.clipboard.writeText(content);
       toast({
@@ -115,7 +120,11 @@ export default function Home() {
   };
 
   const selectedFile = form.watch('resumeFile')?.[0];
-
+  
+  const hasGeneratedQuestions = 
+    generatedQuestions.easy.length > 0 || 
+    generatedQuestions.medium.length > 0 || 
+    generatedQuestions.hard.length > 0;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -258,7 +267,7 @@ export default function Home() {
               </Card>
             )}
 
-            {generatedQuestions.length > 0 && !isLoading && (
+            {hasGeneratedQuestions && !isLoading && (
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center flex-wrap gap-2">
@@ -278,22 +287,63 @@ export default function Home() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <Accordion type="single" collapsible className="w-full">
-                    {generatedQuestions.map((question, index) => (
-                      <AccordionItem value={`item-${index}`} key={index}>
-                        <AccordionTrigger>Question {index + 1}</AccordionTrigger>
-                        <AccordionContent>
-                          {question}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                <CardContent className="space-y-4">
+                   <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Easy</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {generatedQuestions.easy.map((question, index) => (
+                          <AccordionItem value={`easy-${index}`} key={`easy-${index}`}>
+                            <AccordionTrigger>Question {index + 1}</AccordionTrigger>
+                            <AccordionContent>
+                              {question}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Medium</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {generatedQuestions.medium.map((question, index) => (
+                          <AccordionItem value={`medium-${index}`} key={`medium-${index}`}>
+                            <AccordionTrigger>Question {index + 1}</AccordionTrigger>
+                            <AccordionContent>
+                              {question}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Hard</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                       <Accordion type="single" collapsible className="w-full">
+                        {generatedQuestions.hard.map((question, index) => (
+                          <AccordionItem value={`hard-${index}`} key={`hard-${index}`}>
+                            <AccordionTrigger>Question {index + 1}</AccordionTrigger>
+                            <AccordionContent>
+                              {question}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             )}
 
-            {!isLoading && generatedQuestions.length === 0 && (
+            {!isLoading && !hasGeneratedQuestions && (
                  <Card className="flex items-center justify-center p-16 border-dashed">
                      <div className="text-center text-muted-foreground">
                          <Sparkles className="mx-auto h-12 w-12" />
