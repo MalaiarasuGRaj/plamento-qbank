@@ -54,7 +54,10 @@ export async function generateInterviewQuestions(
 const prompt = ai.definePrompt({
   name: 'generateInterviewQuestionsPrompt',
   input: {schema: GenerateInterviewQuestionsInputSchema},
-  output: {schema: GenerateInterviewQuestionsOutputSchema},
+  output: {
+    schema: GenerateInterviewQuestionsOutputSchema,
+    format: 'json',
+  },
   prompt: `You are an expert interview question generator.
 
   Based on the provided resume and the selected skills, generate a list of 15 interview questions in the specified format, categorized by difficulty.
@@ -96,7 +99,7 @@ const prompt = ai.definePrompt({
         threshold: 'BLOCK_NONE',
       },
     ],
-  }
+  },
 });
 
 const generateInterviewQuestionsFlow = ai.defineFlow(
