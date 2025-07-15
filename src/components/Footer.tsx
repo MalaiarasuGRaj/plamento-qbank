@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-center items-center gap-8">
           <div className="flex items-center gap-3">
-            <Linkedin className="w-5 h-5 text-primary" />
+            <Linkedin className="w-5 h-5" />
             <a 
               href="https://www.linkedin.com/in/mgraj" 
               target="_blank" 
@@ -18,7 +18,7 @@ const Footer = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-primary" />
+            <Mail className="w-5 h-5" />
             <span>Contact Us: contact.plamento@gmail.com</span>
           </div>
         </div>
