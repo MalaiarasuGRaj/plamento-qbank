@@ -122,7 +122,9 @@ export default function Home() {
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center gap-2">
           <Icons.logo className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold font-headline text-foreground">SkillScout</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#3a8dde] to-[#8f3de4] bg-clip-text text-transparent">
+            SkillScout
+          </h1>
         </div>
       </header>
       <main className="flex-grow container mx-auto px-4 py-8">
