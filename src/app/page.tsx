@@ -133,7 +133,7 @@ export default function Home() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-8 items-start">
           <Card className="w-full max-w-4xl mx-auto">
-            <CardHeader>
+            <CardHeader className="text-center">
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
                 Upload a resume, select skills, and choose a format to generate tailored interview questions.
