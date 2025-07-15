@@ -2,7 +2,7 @@ import { Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-background text-muted-foreground py-8 mt-auto">
+    <footer className="bg-black text-white py-8 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-center items-center gap-8">
           <div className="flex items-center gap-3">
@@ -11,7 +11,7 @@ const Footer = () => {
               href="https://www.linkedin.com/in/mgraj" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
+              className="hover:text-neutral-300 transition-colors"
             > 
               Connect on LinkedIn
             </a>
@@ -23,7 +23,7 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="text-center mt-6 pt-6 border-t border-border">
+        <div className="text-center mt-6 pt-6 border-t border-neutral-800">
           <p className="text-sm">&copy; 2024 Plamento. All rights reserved.</p>
         </div>
       </div>
