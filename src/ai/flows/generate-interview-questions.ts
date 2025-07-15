@@ -67,6 +67,14 @@ const prompt = ai.definePrompt({
 
   The questions should be relevant to the resume and skills, and designed to assess the candidate's knowledge and experience.
 
+  {{#if (eq questionFormat "Fill in the Blanks")}}
+  For "Fill in the Blanks" questions, you MUST create a sentence where a key term or concept is replaced by '________'. For example: "In React, the '________' hook is used to manage state in a functional component."
+  {{/if}}
+  
+  {{#if (eq questionFormat "MCQs")}}
+  For "MCQs" (Multiple Choice Questions), you MUST provide a question with at least 4 distinct options, where one is correct. Format them clearly as a question followed by options (e.g., A, B, C, D).
+  {{/if}}
+
   Return ONLY a JSON object with three keys: "easy", "medium", and "hard", where each key holds an array of 5 question strings.
   `,
 });
