@@ -121,7 +121,9 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">Plamento</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#3a8dde] to-[#8f3de4] bg-clip-text text-transparent">
+            Plamento
+          </h1>
           <span className="text-2xl font-light text-muted-foreground">/</span>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-[#3a8dde] to-[#8f3de4] bg-clip-text text-transparent">
             SkillScout
