@@ -49,6 +49,7 @@ export default function Home() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<GenerateInterviewQuestionsOutput | null>(null);
+  const [skillsForExport, setSkillsForExport] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
@@ -61,6 +62,7 @@ export default function Home() {
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     setGeneratedQuestions(null);
+    setSkillsForExport(values.skills);
     
     try {
         const resumeDataUri = await fileToDataUri(values.resumeFile[0]);
@@ -94,6 +96,7 @@ export default function Home() {
     if (!generatedQuestions) return;
     const allQuestions = [...generatedQuestions.easy, ...generatedQuestions.medium, ...generatedQuestions.hard];
     const content = allQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+    const exportTitle = `${skillsForExport} Interview Questions`;
     
     if (type === 'copy') {
       navigator.clipboard.writeText(content);
@@ -104,7 +107,7 @@ export default function Home() {
     } else if (type === 'print') {
       const printWindow = window.open('', '_blank');
       if (printWindow) {
-        printWindow.document.write(`<html><head><title>SkillScout Questions</title><style>body{font-family: sans-serif; line-height: 1.5; color: #333;} pre{white-space: pre-wrap; word-wrap: break-word;}</style></head><body><h1>Generated Interview Questions</h1><pre>${content}</pre></body></html>`);
+        printWindow.document.write(`<html><head><title>${exportTitle}</title><style>body{font-family: sans-serif; line-height: 1.5; color: #333;} pre{white-space: pre-wrap; word-wrap: break-word;}</style></head><body><h1>${exportTitle}</h1><pre>${content}</pre></body></html>`);
         printWindow.document.close();
         printWindow.print();
       }
