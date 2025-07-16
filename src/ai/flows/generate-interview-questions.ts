@@ -15,7 +15,7 @@ const GenerateInterviewQuestionsInputSchema = z.object({
   resumeDataUri: z
     .string()
     .describe(
-      "The candidate's resume, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "The candidate's resume, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
     ),
   skills: z
     .string()
@@ -109,7 +109,19 @@ const generateInterviewQuestionsFlow = ai.defineFlow(
     outputSchema: GenerateInterviewQuestionsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const llmResponse = await prompt(input);
+    const output = llmResponse.output;
+
+    if (!output) {
+      console.error('AI response was null or undefined.', {
+        finishReason: llmResponse.finishReason,
+        candidates: llmResponse.candidates,
+      });
+      throw new Error(
+        `The AI failed to generate questions. Finish Reason: ${llmResponse.finishReason}`
+      );
+    }
+    
+    return output;
   }
 );
