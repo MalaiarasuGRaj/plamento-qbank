@@ -10,11 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from "@/hooks/use-toast";
 import { getInterviewQuestions } from '@/app/actions';
-import { Icons } from '@/components/icons';
 import Footer from '@/components/Footer';
 import type { GenerateInterviewQuestionsOutput } from '@/ai/flows/generate-interview-questions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -33,9 +31,6 @@ const formSchema = z.object({
     ),
   skills: z.string({ required_error: 'Skills are required.' }).min(1, {
     message: 'Please enter at least one skill.',
-  }),
-  questionFormat: z.enum(['MCQs', 'Fill in the Blanks', 'Theoretical'], {
-    required_error: 'You need to select a question format.',
   }),
 });
 
@@ -60,7 +55,6 @@ export default function Home() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       skills: '',
-      questionFormat: 'Theoretical',
     },
   });
 
@@ -73,7 +67,6 @@ export default function Home() {
         const result = await getInterviewQuestions({
             resumeDataUri: resumeDataUri,
             skills: values.skills,
-            questionFormat: values.questionFormat,
         });
 
         if (result.success && result.questions) {
@@ -153,7 +146,7 @@ export default function Home() {
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
-                Upload a resume, select skills, and choose a format to generate tailored interview questions.
+                Upload a resume and select skills to generate tailored technical interview questions.
               </CardDescription>
             </CardHeader>
             <Form {...form}>
@@ -210,42 +203,6 @@ export default function Home() {
                         <FormDescription>
                           Enter a comma-separated list of skills.
                         </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="questionFormat"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Question Format</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-1"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Theoretical" />
-                              </FormControl>
-                              <FormLabel className="font-normal">Theoretical</FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="MCQs" />
-                              </FormControl>
-                              <FormLabel className="font-normal">MCQs</FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Fill in the Blanks" />
-                              </FormControl>
-                              <FormLabel className="font-normal">Fill in the Blanks</FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
