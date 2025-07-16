@@ -72,7 +72,7 @@ const prompt = ai.definePrompt({
   
   If the requested format is "MCQs" (Multiple Choice Questions), you MUST provide a question with at least 4 distinct options, where one is correct. Format them clearly as a question followed by options (e.g., A, B, C, D).
 
-  If the requested format is "Fill in the Blanks", you MUST create a sentence where a key term or concept is replaced by '________'. For example: "In React, the '________' hook is used to manage state in a functional component."
+  If the requested format is "Fill in the Blanks", you MUST create a sentence where a key term or concept is replaced by '________'. For example: "In React, the '________' hook is used to manage state in a functional component." For each difficulty level (easy, medium, hard), you must provide an array of 5 separate "Fill in the Blanks" sentences.
 
   If the requested format is "Theoretical", provide a standard theoretical question.
 
