@@ -148,9 +148,9 @@ export default function Home() {
           </h2>
         </div>
       </header>
-      <main className="flex-grow container mx-auto px-4 py-8 pt-[100px]"> {/* Adjusted padding-top to account for fixed header height and added space */}
+      <main className="flex-grow container mx-auto px-4 py-8 pt-[120px]"> {/* Adjusted padding-top to account for fixed header height and added more space */}
         <div className="flex flex-col md:flex-row gap-8 items-start px-12">
-          <Card className="w-full md:w-1/2">
+          <Card className="w-full md:w-1/2 bg-card text-card-foreground rounded-xl shadow-lg border border-border">
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
@@ -176,15 +176,15 @@ export default function Home() {
                                 accept=".pdf,.doc,.docx"
                             />
                             <Button 
-                                type="button" 
+ type="button"
                                 variant="outline"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-full justify-start text-left font-normal"
+ onClick={() => fileInputRef.current?.click()}
+                                className="w-full justify-start text-left font-normal bg-black border border-input text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-white"
+
                             >
-                                <Upload className="mr-2"/>
-                                {selectedFile ? selectedFile.name : 'Upload your resume'}
+                                {selectedFile ? <><FileText className="mr-2"/>{selectedFile.name}</> : 'Upload your resume'}
                             </Button>
-                             {selectedFile && (
+ {selectedFile && (
                                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                                     <FileText className="h-4 w-4"/>
                                     <span>{selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</span>
@@ -241,7 +241,7 @@ export default function Home() {
             )}
 
             {hasGeneratedQuestions && !isLoading && generatedQuestions && (
-              <Card>
+              <Card className="bg-card text-card-foreground rounded-xl shadow-lg border border-border">
                 <CardHeader>
                   <div className="flex justify-between items-center flex-wrap gap-2">
                     <div>
@@ -250,12 +250,12 @@ export default function Home() {
                     </div>
                     <div className="flex gap-2">
                        <Button variant="outline" size="sm" onClick={() => handleExport('copy')}>
-                        <Clipboard className="mr-2 h-4 w-4" />
-                        Copy All
+                        <Clipboard className="mr-2 h-4 w-4 text-white" />
+                        <span className="text-white">Copy All</span>
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleExport('print')}>
-                        <Printer className="mr-2 h-4 w-4" />
-                        Print All
+                        <Printer className="mr-2 h-4 w-4 text-white" />
+                        <span className="text-white">Print All</span>
                       </Button>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export default function Home() {
             )}
 
             {!isLoading && !hasGeneratedQuestions && (
-                 <Card className="flex items-center justify-center p-16 border-dashed">
+                 <Card className="flex items-center justify-center p-16 border-dashed bg-card text-card-foreground rounded-xl shadow-lg border border-border">
                      <div className="text-center text-muted-foreground">
                          <Sparkles className="mx-auto h-12 w-12" />
                          <p className="mt-4">Your generated questions will appear here.</p>
