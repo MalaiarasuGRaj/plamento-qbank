@@ -61,10 +61,12 @@ const prompt = ai.definePrompt({
   
   You MUST generate exactly 5 easy, 5 medium, and 5 hard questions.
 
+  - For the 5 "easy" questions, focus on foundational theoretical knowledge about the skills provided.
+  - For the 5 "medium" questions, you MUST tailor them specifically to the experience, projects, or technologies mentioned in the provided resume.
+  - For the 5 "hard" questions, focus on advanced, complex, or architectural theoretical knowledge about the skills provided.
+
   Resume: {{media url=resumeDataUri}}
   Skills: {{{skills}}}
-
-  The questions should be relevant to the resume and skills, and designed to assess the candidate's theoretical knowledge and experience.
   
   Return ONLY a JSON object with three keys: "easy", "medium", and "hard", where each key holds an array of 5 question strings.
   `,
