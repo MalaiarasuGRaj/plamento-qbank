@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { getInterviewQuestions } from '@/app/actions';
 import { Icons } from '@/components/icons';
 import Footer from '@/components/Footer';
+import type { GenerateInterviewQuestionsOutput } from '@/ai/flows/generate-interview-questions';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
@@ -51,7 +53,7 @@ const fileToDataUri = (file: File): Promise<string> => {
 export default function Home() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedQuestions, setGeneratedQuestions] = useState<string[]>([]);
+  const [generatedQuestions, setGeneratedQuestions] = useState<GenerateInterviewQuestionsOutput | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
@@ -64,7 +66,7 @@ export default function Home() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    setGeneratedQuestions([]);
+    setGeneratedQuestions(null);
     
     try {
         const resumeDataUri = await fileToDataUri(values.resumeFile[0]);
@@ -96,7 +98,9 @@ export default function Home() {
   };
 
   const handleExport = (type: 'copy' | 'print') => {
-    const content = generatedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+    if (!generatedQuestions) return;
+    const allQuestions = [...generatedQuestions.easy, ...generatedQuestions.medium, ...generatedQuestions.hard];
+    const content = allQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n');
     
     if (type === 'copy') {
       navigator.clipboard.writeText(content);
@@ -113,10 +117,22 @@ export default function Home() {
       }
     }
   };
+  
+  const renderQuestionSet = (questions: string[]) => (
+    <Accordion type="single" collapsible className="w-full">
+      {questions.map((question, index) => (
+        <AccordionItem value={`question-${index}`} key={`question-${index}`}>
+          <AccordionTrigger>Question {index + 1}</AccordionTrigger>
+          <AccordionContent>{question}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  );
+
 
   const selectedFile = form.watch('resumeFile')?.[0];
   
-  const hasGeneratedQuestions = generatedQuestions.length > 0;
+  const hasGeneratedQuestions = generatedQuestions && (generatedQuestions.easy.length > 0 || generatedQuestions.medium.length > 0 || generatedQuestions.hard.length > 0);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -259,7 +275,7 @@ export default function Home() {
               </Card>
             )}
 
-            {hasGeneratedQuestions && !isLoading && (
+            {hasGeneratedQuestions && !isLoading && generatedQuestions && (
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center flex-wrap gap-2">
@@ -270,26 +286,32 @@ export default function Home() {
                     <div className="flex gap-2">
                        <Button variant="outline" size="sm" onClick={() => handleExport('copy')}>
                         <Clipboard className="mr-2 h-4 w-4" />
-                        Copy
+                        Copy All
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleExport('print')}>
                         <Printer className="mr-2 h-4 w-4" />
-                        Print
+                        Print All
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
-                      {generatedQuestions.map((question, index) => (
-                        <AccordionItem value={`question-${index}`} key={`question-${index}`}>
-                          <AccordionTrigger>Question {index + 1}</AccordionTrigger>
-                          <AccordionContent>
-                            {question}
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
+                    <Tabs defaultValue="easy" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="easy">Easy</TabsTrigger>
+                            <TabsTrigger value="medium">Medium</TabsTrigger>
+                            <TabsTrigger value="hard">Hard</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="easy">
+                            {renderQuestionSet(generatedQuestions.easy)}
+                        </TabsContent>
+                        <TabsContent value="medium">
+                             {renderQuestionSet(generatedQuestions.medium)}
+                        </TabsContent>
+                        <TabsContent value="hard">
+                             {renderQuestionSet(generatedQuestions.hard)}
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
               </Card>
             )}

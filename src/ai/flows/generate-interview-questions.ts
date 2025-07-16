@@ -62,7 +62,7 @@ const prompt = ai.definePrompt({
 
   Based on the provided resume and the selected skills, generate a list of 15 interview questions in the specified format, categorized by difficulty.
   
-  You must generate exactly 5 easy, 5 medium, and 5 hard questions.
+  You MUST generate exactly 5 easy, 5 medium, and 5 hard questions.
 
   Resume: {{media url=resumeDataUri}}
   Skills: {{{skills}}}

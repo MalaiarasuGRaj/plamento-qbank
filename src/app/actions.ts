@@ -1,14 +1,27 @@
 'use server';
 
-import { generateInterviewQuestions, type GenerateInterviewQuestionsInput } from '@/ai/flows/generate-interview-questions';
+import {
+  generateInterviewQuestions,
+  type GenerateInterviewQuestionsInput,
+  type GenerateInterviewQuestionsOutput,
+} from '@/ai/flows/generate-interview-questions';
 
-export async function getInterviewQuestions(input: GenerateInterviewQuestionsInput): Promise<{ success: boolean; questions?: string[]; error?: string; }> {
+export async function getInterviewQuestions(
+  input: GenerateInterviewQuestionsInput
+): Promise<{
+  success: boolean;
+  questions?: GenerateInterviewQuestionsOutput;
+  error?: string;
+}> {
   try {
     const output = await generateInterviewQuestions(input);
-    const allQuestions = [...output.easy, ...output.medium, ...output.hard];
-    return { success: true, questions: allQuestions };
-  } catch (error) {
+    return { success: true, questions: output };
+  } catch (error: any) {
     console.error('Error generating questions:', error);
-    return { success: false, error: 'Failed to generate interview questions. Please try again later.' };
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
+    return {
+      success: false,
+      error: `Failed to generate interview questions. ${errorMessage}`,
+    };
   }
 }
