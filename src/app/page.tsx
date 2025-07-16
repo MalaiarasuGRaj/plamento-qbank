@@ -52,6 +52,7 @@ export default function Home() {
   const [skillsForExport, setSkillsForExport] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -132,9 +133,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-white">
+      <header className="fixed top-0 left-0 right-0 bg-background z-50 shadow-md p-4"> {/* Added fixed positioning, styling, and padding */}
+        <div className="flex items-center gap-4 pl-4"> {/* Added pl-4 for left padding */}
+          {/* Back button - No functionality */}
+          <button className="text-white text-xl mr-6 px-2 py-1 border border-transparent rounded hover:border-gray-600"> {/* Increased mr to 6, added padding, border and hover effect */}
+            &larr; {/* Left arrow character */}
+          </button>
+          <h1 className="text-2xl font-bold text-white"> {/* Removed ml-4, padding handled by container */}
             Plamento
           </h1>
           <span className="text-2xl font-light text-muted-foreground">/</span>
@@ -143,9 +148,9 @@ export default function Home() {
           </h2>
         </div>
       </header>
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8 items-start">
-          <Card className="w-full max-w-4xl mx-auto">
+      <main className="flex-grow container mx-auto px-4 py-8 pt-[100px]"> {/* Adjusted padding-top to account for fixed header height and added space */}
+        <div className="flex flex-col md:flex-row gap-8 items-start px-12">
+          <Card className="w-full md:w-1/2">
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-xl">Create Your Interview</CardTitle>
               <CardDescription>
@@ -225,7 +230,7 @@ export default function Home() {
             </Form>
           </Card>
 
-          <div className="w-full space-y-4 max-w-4xl mx-auto">
+          <div className="w-full md:w-1/2 space-y-4">
             {isLoading && (
               <Card className="flex items-center justify-center p-16">
                 <div className="flex flex-col items-center gap-4">
